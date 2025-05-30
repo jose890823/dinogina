@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Regina Dinogina - Princesa Kitygina</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(45deg, #228b22, #32cd32, #90ee90);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #gameCanvas {
+            border: 3px solid #8b4513;
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #87ceeb 0%, #98fb98 30%, #8fbc8f 70%, #654321 100%);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(139, 69, 19, 0.5);
+        }
+
+        #gameUI {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 150;
+        }
+
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #8b4513;
+            background: linear-gradient(45deg, #228b22, #32cd32);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(45deg, #8b4513, #228b22);
+        }
+
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #228b22, #32cd32, #90ee90, #8fbc8f);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(45deg, #228b22, #32cd32, #90ee90, #8fbc8f); }
+            50% { background: linear-gradient(45deg, #8fbc8f, #228b22, #32cd32, #90ee90); }
+        }
+
+        .title {
+            font-size: 48px;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .start-btn {
+            font-size: 24px;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #8b4513, #228b22);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+            font-family: 'Comic Sans MS', cursive;
+            font-weight: bold;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .character-info {
+            color: white;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen">
+        <div class="title">💖 PARA REGINA DINOGINA 💖</div>
+        <div class="title">🦕 DINO KART RACING 🦖</div>
+        <div class="character-info">
+            <div>👑 Protagonista: Princesa Kitygina Dinosaurio 👑</div>
+            <div>🏆 ¡La carrera más prehistórica del reino! 🏆</div>
+        </div>
+        <button class="start-btn" onclick="startGame()">🚗 ¡COMENZAR CARRERA JURÁSICA! 🚗</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="gameUI">
+        <div>👑 Princesa Kitygina Dino</div>
+        <div>⚡ Velocidad: <span id="speed">0</span></div>
+        <div>🏆 Posición: <span id="position">1</span>/4</div>
+        <div>⭐ Puntos: <span id="score">0</span> / <span id="target">5000</span></div>
+        <div>💖 Vidas: <span id="lives">3</span></div>
+        <div>🎁 Poder: <span id="power">Ninguno</span></div>
+    </div>
+
+    <div id="controls">
+        <div>🎮 Controles: ←→ Dirección | ↑ Acelerar | ↓ Frenar | ESPACIO: Usar Poder</div>
+    </div>
+
+    <div class="mobile-controls">
+        <div class="control-btn" id="leftBtn">←</div>
+        <div class="control-btn" id="upBtn">↑</div>
+        <div class="control-btn" id="downBtn">↓</div>
+        <div class="control-btn" id="rightBtn">→</div>
+        <div class="control-btn" id="powerBtn">⚡</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Sistema de audio
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioEnabled = false;
+        
+        // Funciones de audio
+        function playSound(frequency, duration, type = 'sine', volume = 0.1) {
+            if (!audioEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        function playPowerUpSound() {
+            playSound(440, 0.1, 'sine', 0.2);
+            setTimeout(() => playSound(550, 0.1, 'sine', 0.2), 100);
+            setTimeout(() => playSound(660, 0.2, 'sine', 0.2), 200);
+        }
+        
+        function playCollisionSound() {
+            playSound(150, 0.3, 'sawtooth', 0.15);
+        }
+        
+        function playEngineSound() {
+            if (!audioEnabled) return;
+            const freq = 100 + (gameSpeed * 20);
+            playSound(freq, 0.1, 'triangle', 0.05);
+        }
+        
+        function playRoarSound() {
+            playSound(80, 0.5, 'sawtooth', 0.3);
+            setTimeout(() => playSound(120, 0.3, 'sawtooth', 0.2), 200);
+        }
+        
+        function playGameOverSound() {
+            playSound(220, 0.3, 'sine', 0.2);
+            setTimeout(() => playSound(185, 0.3, 'sine', 0.2), 300);
+            setTimeout(() => playSound(147, 0.5, 'sine', 0.2), 600);
+        }
+        
+        function playVictorySound() {
+            const victoryNotes = [262, 330, 392, 523, 659, 784];
+            victoryNotes.forEach((note, index) => {
+                setTimeout(() => playSound(note, 0.4, 'sine', 0.2), index * 200);
+            });
+        }
+        
+        function playLifeLostSound() {
+            playSound(150, 0.2, 'sawtooth', 0.2);
+            setTimeout(() => playSound(100, 0.3, 'sawtooth', 0.15), 200);
+        }
+        
+        // Música de fondo simple
+        function playBackgroundMusic() {
+            if (!audioEnabled) return;
+            
+            const notes = [262, 294, 330, 349, 392, 440, 494, 523]; // C major scale
+            let currentNote = 0;
+            
+            function playNextNote() {
+                if (gameStarted && audioEnabled) {
+                    playSound(notes[currentNote], 0.3, 'square', 0.03);
+                    currentNote = (currentNote + 1) % notes.length;
+                    setTimeout(playNextNote, 500);
+                }
+            }
+            
+            playNextNote();
+        }
+        
+        // Variables del juego
+        let gameStarted = false;
+        let gameSpeed = 2;
+        let playerScore = 0;
+        let currentPower = null;
+        let powerDuration = 0;
+        let playerLives = 3;
+        let gameTime = 0;
+        let raceFinished = false;
+        let raceTargetScore = 5000; // Puntos necesarios para ganar
+        
+        // Jugador (Princesa Kitygina Dinosaurio)
+        const player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 100,
+            width: 50,
+            height: 40,
+            speed: 5,
+            maxSpeed: 8,
+            color: '#ff69b4',
+            trail: [],
+            animFrame: 0
+        };
+
+        // Enemigos (Otros Dinosaurios)
+        const enemies = [
+            { 
+                x: 100, y: -100, width: 45, height: 38, speed: 3, 
+                color: '#4169e1', name: 'Tricerátops Azul', lane: 0, animFrame: 0,
+                type: 'triceratops'
+            },
+            { 
+                x: 300, y: -200, width: 45, height: 38, speed: 2.5, 
+                color: '#32cd32', name: 'Estegosaurio Verde', lane: 1, animFrame: 0,
+                type: 'stegosaurus'
+            },
+            { 
+                x: 500, y: -300, width: 45, height: 38, speed: 3.5, 
+                color: '#ff4500', name: 'Velocirraptor Naranja', lane: 2, animFrame: 0,
+                type: 'velociraptor'
+            }
+        ];
+
+        // Obstáculos y power-ups
+        const obstacles = [];
+        const powerUps = [];
+        const particles = [];
+
+        // Poderes dinosaurios
+        const powers = {
+            'roar': { name: 'Rugido Jurásico', emoji: '🦖', duration: 180 },
+            'armor': { name: 'Caparazón Dino', emoji: '🛡️', duration: 300 },
+            'stomp': { name: 'Pisotón Gigante', emoji: '🦶', duration: 60 },
+            'meteor': { name: 'Lluvia de Meteoros', emoji: '☄️', duration: 240 }
+        };
+
+        // Controles
+        const keys = {};
+        
+        // Event listeners para teclado
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ') {
+                e.preventDefault();
+                usePower();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Función para iniciar el juego
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameStarted = true;
+            
+            // Activar audio después del primer clic del usuario
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    audioEnabled = true;
+                    playBackgroundMusic();
+                });
+            } else {
+                audioEnabled = true;
+                playBackgroundMusic();
+            }
+            
+            gameLoop();
+        }
+
+        // Controles móviles
+        document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = true;
+        });
+        document.getElementById('leftBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = false;
+        });
+        document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = true;
+        });
+        document.getElementById('rightBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = false;
+        });
+        document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowUp'] = true;
+        });
+        document.getElementById('upBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowUp'] = false;
+        });
+        document.getElementById('downBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowDown'] = true;
+        });
+        document.getElementById('downBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowDown'] = false;
+        });
+        document.getElementById('powerBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            usePower();
+        });
+
+        function createObstacle() {
+            if (Math.random() < 0.02) {
+                const obstacleTypes = ['volcano', 'fossil', 'tar', 'tree'];
+                const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+                obstacles.push({
+                    x: Math.random() * (canvas.width - 40),
+                    y: -30,
+                    width: 40,
+                    height: 30,
+                    type: type
+                });
+            }
+        }
+
+        function createPowerUp() {
+            if (Math.random() < 0.008) {
+                const powerTypes = Object.keys(powers);
+                const randomPower = powerTypes[Math.floor(Math.random() * powerTypes.length)];
+                powerUps.push({
+                    x: Math.random() * (canvas.width - 30),
+                    y: -30,
+                    width: 30,
+                    height: 30,
+                    type: randomPower,
+                    emoji: powers[randomPower].emoji,
+                    pulse: 0
+                });
+            }
+        }
+
+        function createParticle(x, y, color, emoji = null) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x + Math.random() * 20 - 10,
+                    y: y + Math.random() * 20 - 10,
+                    vx: Math.random() * 6 - 3,
+                    vy: Math.random() * 6 - 3,
+                    life: 40,
+                    color: color,
+                    emoji: emoji,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+
+        function usePower() {
+            if (currentPower) {
+                if (currentPower === 'meteor') {
+                    playMeteorSound();
+                    // Crear lluvia de meteoros
+                    for (let i = 0; i < 25; i++) {
+                        particles.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            vx: Math.random() * 3 - 1.5,
+                            vy: Math.random() * 3 + 2,
+                            life: 150,
+                            color: '#ff4500',
+                            emoji: '☄️',
+                            size: Math.random() * 6 + 4
+                        });
+                    }
+                    enemies.forEach(enemy => enemy.speed *= 0.4);
+                } else if (currentPower === 'roar') {
+                    playRoarSound();
+                    // Rugido que empuja enemigos
+                    enemies.forEach(enemy => {
+                        enemy.y += 50;
+                        enemy.speed *= 0.7;
+                    });
+                    createParticle(player.x, player.y, '#ffff00', '💥');
+                } else if (currentPower === 'armor') {
+                    playSound(300, 0.5, 'sine', 0.2);
+                } else if (currentPower === 'stomp') {
+                    playSound(60, 0.8, 'sawtooth', 0.25);
+                }
+                
+                currentPower = null;
+                powerDuration = 0;
+                updateUI();
+            }
+        }
+
+        function updatePlayer() {
+            player.animFrame += 0.2;
+            gameTime++;
+            
+            // Movimiento horizontal
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+            
+            // Acelerar/frenar
+            if (keys['ArrowUp']) {
+                gameSpeed = Math.min(gameSpeed + 0.1, player.maxSpeed);
+                if (Math.random() < 0.1) playEngineSound(); // Sonido de motor ocasional
+            }
+            if (keys['ArrowDown']) {
+                gameSpeed = Math.max(gameSpeed - 0.1, 1);
+            }
+
+            // Aplicar efectos de poderes
+            let effectiveSpeed = gameSpeed;
+            if (currentPower === 'roar' && powerDuration > 0) {
+                effectiveSpeed *= 1.6;
+                powerDuration--;
+                if (powerDuration <= 0) {
+                    currentPower = null;
+                }
+            }
+
+            if (currentPower === 'armor' && powerDuration > 0) {
+                powerDuration--;
+                if (powerDuration <= 0) {
+                    currentPower = null;
+                }
+            }
+
+            // Añadir estela de dinosaurio
+            player.trail.push({ 
+                x: player.x + player.width/2, 
+                y: player.y + player.height,
+                frame: player.animFrame 
+            });
+            if (player.trail.length > 12) {
+                player.trail.shift();
+            }
+
+            // Actualizar puntuación
+            playerScore += Math.floor(effectiveSpeed);
+            
+            // Verificar condiciones de victoria
+            if (playerScore >= raceTargetScore && !raceFinished) {
+                raceFinished = true;
+                showVictoryScreen();
+            }
+        }
+
+        function updateEnemies() {
+            enemies.forEach((enemy, index) => {
+                enemy.animFrame += 0.15;
+                enemy.y += gameSpeed + enemy.speed;
+                
+                // Movimiento de IA más inteligente por tipo
+                if (Math.random() < 0.03) {
+                    if (enemy.type === 'triceratops') {
+                        enemy.x += (Math.random() - 0.5) * 2;
+                    } else if (enemy.type === 'velociraptor') {
+                        enemy.x += (Math.random() - 0.5) * 6;
+                    } else if (enemy.type === 'stegosaurus') {
+                        enemy.x += (Math.random() - 0.5) * 3;
+                    }
+                    enemy.x = Math.max(0, Math.min(canvas.width - enemy.width, enemy.x));
+                }
+                
+                // Reposicionar si sale de pantalla
+                if (enemy.y > canvas.height + 50) {
+                    enemy.y = -Math.random() * 400 - 150;
+                    enemy.x = Math.random() * (canvas.width - enemy.width);
+                }
+            });
+        }
+
+        function updateObstacles() {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].y += gameSpeed;
+                
+                // Eliminar obstáculos fuera de pantalla
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    continue;
+                }
+                
+                // Colisión con jugador
+                if (currentPower !== 'armor' && 
+                    checkCollision(player, obstacles[i])) {
+                    const obstacle = obstacles[i];
+                    playCollisionSound();
+                    createParticle(obstacle.x, obstacle.y, '#8b4513', '💥');
+                    
+                    // Perder una vida
+                    playerLives--;
+                    playLifeLostSound();
+                    
+                    if (playerLives <= 0) {
+                        showGameOverScreen();
+                        return;
+                    }
+                    
+                    gameSpeed = Math.max(gameSpeed - 1.5, 1);
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        function updatePowerUps() {
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                powerUps[i].y += gameSpeed;
+                powerUps[i].pulse += 0.2;
+                
+                // Eliminar power-ups fuera de pantalla
+                if (powerUps[i].y > canvas.height) {
+                    powerUps.splice(i, 1);
+                    continue;
+                }
+                
+                // Colisión con jugador
+                if (checkCollision(player, powerUps[i])) {
+                    currentPower = powerUps[i].type;
+                    powerDuration = powers[currentPower].duration;
+                    playPowerUpSound();
+                    createParticle(powerUps[i].x, powerUps[i].y, '#ffd700', '✨');
+                    powerUps.splice(i, 1);
+                    updateUI();
+                }
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function drawRoad() {
+            // Fondo jurásico
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87ceeb');
+            gradient.addColorStop(0.3, '#98fb98');
+            gradient.addColorStop(0.7, '#8fbc8f');
+            gradient.addColorStop(1, '#654321');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Camino de tierra
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(0, canvas.height * 0.3, canvas.width, canvas.height * 0.7);
+            
+            // Líneas de carril
+            ctx.strokeStyle = '#daa520';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([15, 25]);
+            
+            for (let x = canvas.width / 4; x < canvas.width; x += canvas.width / 4) {
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height * 0.3);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            ctx.setLineDash([]);
+            
+            // Vegetación de fondo
+            drawBackgroundVegetation();
+        }
+
+        function drawBackgroundVegetation() {
+            ctx.fillStyle = '#228b22';
+            // Helechos gigantes
+            for (let i = 0; i < 5; i++) {
+                const x = i * (canvas.width / 4) + Math.sin(Date.now() * 0.001 + i) * 10;
+                const y = canvas.height * 0.1;
+                ctx.fillRect(x, y, 15, 80);
+                ctx.fillRect(x - 10, y + 10, 35, 8);
+                ctx.fillRect(x - 8, y + 25, 31, 8);
+                ctx.fillRect(x - 6, y + 40, 27, 8);
+            }
+        }
+
+        function drawDinosaur(dino, isPlayer = false) {
+            const bounce = Math.sin(dino.animFrame) * 2;
+            const x = dino.x;
+            const y = dino.y + bounce;
+            
+            if (isPlayer) {
+                // Princesa Kitygina Dinosaurio (T-Rex rosa con corona)
+                
+                // Cuerpo principal
+                ctx.fillStyle = dino.color;
+                ctx.fillRect(x + 10, y + 15, 30, 20);
+                
+                // Cabeza
+                ctx.fillStyle = '#ff1493';
+                ctx.fillRect(x + 5, y + 5, 20, 15);
+                
+                // Corona de princesa
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(x + 8, y, 14, 8);
+                ctx.fillRect(x + 10, y - 3, 3, 6);
+                ctx.fillRect(x + 15, y - 2, 3, 5);
+                ctx.fillRect(x + 20, y - 3, 3, 6);
+                
+                // Brazos pequeños de T-Rex
+                ctx.fillStyle = dino.color;
+                ctx.fillRect(x + 5, y + 18, 8, 4);
+                ctx.fillRect(x + 37, y + 18, 8, 4);
+                
+                // Patas
+                ctx.fillStyle = '#ff69b4';
+                ctx.fillRect(x + 12, y + 30, 8, 10);
+                ctx.fillRect(x + 25, y + 30, 8, 10);
+                
+                // Cola
+                ctx.fillStyle = dino.color;
+                ctx.fillRect(x + 35, y + 20, 15, 8);
+                
+                // Ojos brillantes
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + 8, y + 8, 3, 3);
+                ctx.fillRect(x + 16, y + 8, 3, 3);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + 9, y + 8, 1, 1);
+                ctx.fillRect(x + 17, y + 8, 1, 1);
+                
+            } else {
+                // Otros dinosaurios
+                if (dino.type === 'triceratops') {
+                    drawTriceratops(dino, x, y);
+                } else if (dino.type === 'stegosaurus') {
+                    drawStegosaurus(dino, x, y);
+                } else if (dino.type === 'velociraptor') {
+                    drawVelociraptor(dino, x, y);
+                }
+            }
+
+            // Efecto de armadura
+            if (isPlayer && currentPower === 'armor' && powerDuration > 0) {
+                ctx.strokeStyle = '#8b4513';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(x + dino.width/2, y + dino.height/2, 45, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        function drawTriceratops(dino, x, y) {
+            // Cuerpo
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 8, y + 15, 30, 18);
+            
+            // Cabeza con cuernos
+            ctx.fillStyle = '#4682b4';
+            ctx.fillRect(x + 2, y + 8, 18, 12);
+            
+            // Cuernos
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 5, y + 5, 2, 8);
+            ctx.fillRect(x + 10, y + 5, 2, 8);
+            ctx.fillRect(x + 15, y + 5, 2, 8);
+            
+            // Patas
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 10, y + 28, 6, 8);
+            ctx.fillRect(x + 25, y + 28, 6, 8);
+        }
+
+        function drawStegosaurus(dino, x, y) {
+            // Cuerpo
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 8, y + 18, 30, 15);
+            
+            // Cabeza pequeña
+            ctx.fillStyle = '#228b22';
+            ctx.fillRect(x + 2, y + 15, 12, 8);
+            
+            // Placas dorsales
+            ctx.fillStyle = '#90ee90';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(x + 12 + i * 6, y + 8, 4, 12);
+            }
+            
+            // Cola con púas
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 35, y + 22, 10, 6);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 42, y + 18, 2, 8);
+            ctx.fillRect(x + 45, y + 18, 2, 8);
+            
+            // Patas
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 12, y + 28, 6, 8);
+            ctx.fillRect(x + 28, y + 28, 6, 8);
+        }
+
+        function drawVelociraptor(dino, x, y) {
+            // Cuerpo ágil
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 10, y + 18, 25, 12);
+            
+            // Cabeza alargada
+            ctx.fillStyle = '#ff6347';
+            ctx.fillRect(x + 2, y + 12, 15, 10);
+            
+            // Patas largas
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 12, y + 25, 5, 12);
+            ctx.fillRect(x + 25, y + 25, 5, 12);
+            
+            // Garra característica
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 14, y + 35, 2, 4);
+            ctx.fillRect(x + 27, y + 35, 2, 4);
+            
+            // Cola larga
+            ctx.fillStyle = dino.color;
+            ctx.fillRect(x + 32, y + 20, 12, 6);
+        }
+
+        function drawPlayer() {
+            // Estela de dinosaurio
+            ctx.globalAlpha = 0.4;
+            for (let i = 0; i < player.trail.length; i++) {
+                const trail = player.trail[i];
+                const alpha = i / player.trail.length;
+                ctx.fillStyle = `rgba(255, 105, 180, ${alpha})`;
+                ctx.fillRect(trail.x - 3, trail.y, 6, 10);
+                // Pequeñas huellas
+                if (i % 3 === 0) {
+                    ctx.fillStyle = `rgba(139, 69, 19, ${alpha * 0.5})`;
+                    ctx.fillRect(trail.x - 1, trail.y + 5, 2, 3);
+                }
+            }
+            ctx.globalAlpha = 1;
+
+            drawDinosaur(player, true);
+        }
+
+        function drawEnemies() {
+            enemies.forEach(enemy => {
+                drawDinosaur(enemy, false);
+            });
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                if (obstacle.type === 'volcano') {
+                    ctx.fillStyle = '#8b0000';
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    ctx.fillStyle = '#ff4500';
+                    ctx.fillRect(obstacle.x + 5, obstacle.y + 5, obstacle.width - 10, obstacle.height - 15);
+                    // Lava
+                    ctx.fillStyle = '#ff6347';
+                    ctx.fillRect(obstacle.x + 15, obstacle.y, 10, 8);
+                } else if (obstacle.type === 'fossil') {
+                    ctx.fillStyle = '#daa520';
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    ctx.fillStyle = '#f5deb3';
+                    ctx.fillRect(obstacle.x + 5, obstacle.y + 5, obstacle.width - 10, obstacle.height - 10);
+                    // Huesos
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(obstacle.x + 10, obstacle.y + 8, 20, 3);
+                    ctx.fillRect(obstacle.x + 18, obstacle.y + 12, 4, 10);
+                } else if (obstacle.type === 'tar') {
+                    ctx.fillStyle = '#2f4f4f';
+                    ctx.beginPath();
+                    ctx.ellipse(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, 
+                              obstacle.width/2, obstacle.height/3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (obstacle.type === 'tree') {
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(obstacle.x + 15, obstacle.y + 10, 10, 20);
+                    ctx.fillStyle = '#228b22';
+                    ctx.beginPath();
+                    ctx.arc(obstacle.x + 20, obstacle.y + 15, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawPowerUps() {
+            powerUps.forEach(powerUp => {
+                const pulse = Math.sin(powerUp.pulse) * 5 + 5;
+                
+                // Caja del power-up con efecto pulsante
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(powerUp.x - pulse/2, powerUp.y - pulse/2, 
+                           powerUp.width + pulse, powerUp.height + pulse);
+                ctx.strokeStyle = '#ff69b4';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(powerUp.x - pulse/2, powerUp.y - pulse/2, 
+                             powerUp.width + pulse, powerUp.height + pulse);
+                
+                // Emoji del poder
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#000';
+                ctx.fillText(powerUp.emoji, powerUp.x + powerUp.width/2, powerUp.y + powerUp.height/2 + 8);
+            });
+        }
+
+        function drawParticles() {
+            particles.forEach(particle => {
+                ctx.globalAlpha = particle.life / 40;
+                if (particle.emoji) {
+                    ctx.font = `${particle.size * 2}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(particle.emoji, particle.x, particle.y);
+                } else {
+                    ctx.fillStyle = particle.color;
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('speed').textContent = Math.floor(gameSpeed);
+            document.getElementById('score').textContent = playerScore;
+            document.getElementById('target').textContent = raceTargetScore;
+            document.getElementById('lives').textContent = playerLives;
+            document.getElementById('power').textContent = currentPower ? 
+                powers[currentPower].name : 'Ninguno';
+            
+            // Calcular posición basada en la distancia recorrida
+            let position = 1;
+            enemies.forEach(enemy => {
+                if (enemy.y < player.y) position++;
+            });
+            document.getElementById('position').textContent = position;
+        }
+
+        function gameLoop() {
+            if (!gameStarted || raceFinished) return;
+            
+            // Limpiar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar fondo
+            drawRoad();
+            
+            // Actualizar lógica del juego
+            updatePlayer();
+            updateEnemies();
+            updateObstacles();
+            updatePowerUps();
+            updateParticles();
+            
+            // Crear nuevos elementos
+            createObstacle();
+            createPowerUp();
+            
+            // Dibujar elementos
+            drawObstacles();
+            drawPowerUps();
+            drawEnemies();
+            drawPlayer();
+            drawParticles();
+            
+            // Actualizar UI
+            updateUI();
+            
+            // Continuar el loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function showGameOverScreen() {
+            gameStarted = false;
+            raceFinished = true;
+            playGameOverSound();
+            
+            // Crear pantalla de Game Over
+            const gameOverDiv = document.createElement('div');
+            gameOverDiv.id = 'gameOverScreen';
+            gameOverDiv.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(45deg, #8b0000, #dc143c, #ff6347);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000;
+                animation: fadeIn 0.5s ease-in;
+            `;
+            
+            gameOverDiv.innerHTML = `
+                <div style="font-size: 48px; color: white; margin-bottom: 20px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5);">
+                    💔 ¡OH NO! 💔
+                </div>
+                <div style="font-size: 24px; color: white; margin-bottom: 30px; text-align: center;">
+                    La Princesa Kitygina se quedó sin vidas<br>
+                    Puntuación Final: ${playerScore} / ${raceTargetScore}
+                </div>
+                <button onclick="restartGame()" style="font-size: 24px; padding: 15px 30px; background: linear-gradient(45deg, #228b22, #32cd32); color: white; border: none; border-radius: 25px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
+                    🔄 ¡INTENTAR DE NUEVO! 🔄
+                </button>
+            `;
+            
+            document.body.appendChild(gameOverDiv);
+        }
+        
+        function showVictoryScreen() {
+            gameStarted = false;
+            playVictorySound();
+            
+            // Crear pantalla de Victoria
+            const victoryDiv = document.createElement('div');
+            victoryDiv.id = 'victoryScreen';
+            victoryDiv.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(45deg, #ffd700, #ffff00, #ffa500, #ff69b4);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000;
+                animation: fadeIn 0.5s ease-in;
+            `;
+            
+            victoryDiv.innerHTML = `
+                <div style="font-size: 48px; color: white; margin-bottom: 20px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); animation: bounce 2s ease-in-out infinite;">
+                    🏆 ¡VICTORIA! 🏆
+                </div>
+                <div style="font-size: 24px; color: white; margin-bottom: 30px; text-align: center;">
+                    ¡La Princesa Kitygina ganó la carrera!<br>
+                    Puntuación Final: ${playerScore} puntos<br>
+                    🎉 ¡Felicidades Regina! 🎉
+                </div>
+                <button onclick="restartGame()" style="font-size: 24px; padding: 15px 30px; background: linear-gradient(45deg, #228b22, #32cd32); color: white; border: none; border-radius: 25px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
+                    🚗 ¡JUGAR DE NUEVO! 🚗
+                </button>
+            `;
+            
+            document.body.appendChild(victoryDiv);
+        }
+        
+        function restartGame() {
+            // Remover pantallas de fin
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            const victoryScreen = document.getElementById('victoryScreen');
+            if (gameOverScreen) gameOverScreen.remove();
+            if (victoryScreen) victoryScreen.remove();
+            
+            // Reiniciar variables
+            gameStarted = false;
+            gameSpeed = 2;
+            playerScore = 0;
+            currentPower = null;
+            powerDuration = 0;
+            playerLives = 3;
+            gameTime = 0;
+            raceFinished = false;
+            
+            // Reiniciar posición del jugador
+            player.x = canvas.width / 2 - 25;
+            player.y = canvas.height - 100;
+            player.trail = [];
+            
+            // Limpiar arrays
+            obstacles.length = 0;
+            powerUps.length = 0;
+            particles.length = 0;
+            
+            // Reposicionar enemigos
+            enemies.forEach((enemy, index) => {
+                enemy.y = -(index + 1) * 150 - 100;
+                enemy.x = Math.random() * (canvas.width - enemy.width);
+                enemy.speed = 2.5 + Math.random() * 1.5;
+            });
+            
+            // Mostrar pantalla de inicio
+            document.getElementById('startScreen').style.display = 'flex';
+            
+            updateUI();
+        }
+
+        // Prevenir zoom en dispositivos móviles
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
