@@ -154,7 +154,7 @@
             <div>👑 Protagonista: Princesa Kitygina Dinosaurio 👑</div>
             <div>🏆 ¡La carrera más prehistórica del reino! 🏆</div>
         </div>
-        <button class="start-btn" onclick="startGame()">🚗 ¡COMENZAR CARRERA JURÁSICA! 🚗</button>
+        <button class="start-btn" id="startButton">🚗 ¡COMENZAR CARRERA JURÁSICA! 🚗</button>
     </div>
 
     <canvas id="gameCanvas" width="800" height="600"></canvas>
@@ -356,42 +356,49 @@
             gameLoop();
         }
 
-        // Controles móviles
-        document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['ArrowLeft'] = true;
+        // Event listeners para el botón de inicio
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('startButton').addEventListener('click', startGame);
         });
-        document.getElementById('leftBtn').addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys['ArrowLeft'] = false;
-        });
-        document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['ArrowRight'] = true;
-        });
-        document.getElementById('rightBtn').addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys['ArrowRight'] = false;
-        });
-        document.getElementById('upBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['ArrowUp'] = true;
-        });
-        document.getElementById('upBtn').addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys['ArrowUp'] = false;
-        });
-        document.getElementById('downBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['ArrowDown'] = true;
-        });
-        document.getElementById('downBtn').addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys['ArrowDown'] = false;
-        });
-        document.getElementById('powerBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            usePower();
+
+        // Controles móviles - Configurar después de que el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys['ArrowLeft'] = true;
+            });
+            document.getElementById('leftBtn').addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys['ArrowLeft'] = false;
+            });
+            document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys['ArrowRight'] = true;
+            });
+            document.getElementById('rightBtn').addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys['ArrowRight'] = false;
+            });
+            document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys['ArrowUp'] = true;
+            });
+            document.getElementById('upBtn').addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys['ArrowUp'] = false;
+            });
+            document.getElementById('downBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys['ArrowDown'] = true;
+            });
+            document.getElementById('downBtn').addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys['ArrowDown'] = false;
+            });
+            document.getElementById('powerBtn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                usePower();
+            });
         });
 
         function createObstacle() {
@@ -999,12 +1006,17 @@
                     La Princesa Kitygina se quedó sin vidas<br>
                     Puntuación Final: ${playerScore} / ${raceTargetScore}
                 </div>
-                <button onclick="restartGame()" style="font-size: 24px; padding: 15px 30px; background: linear-gradient(45deg, #228b22, #32cd32); color: white; border: none; border-radius: 25px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
+                <button id="restartButton" style="font-size: 24px; padding: 15px 30px; background: linear-gradient(45deg, #228b22, #32cd32); color: white; border: none; border-radius: 25px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
                     🔄 ¡INTENTAR DE NUEVO! 🔄
                 </button>
             `;
             
             document.body.appendChild(gameOverDiv);
+            
+            // Agregar event listener al botón de restart
+            setTimeout(() => {
+                document.getElementById('restartButton').addEventListener('click', restartGame);
+            }, 100);
         }
         
         function showVictoryScreen() {
@@ -1038,12 +1050,17 @@
                     Puntuación Final: ${playerScore} puntos<br>
                     🎉 ¡Felicidades Regina! 🎉
                 </div>
-                <button onclick="restartGame()" style="font-size: 24px; padding: 15px 30px; background: linear-gradient(45deg, #228b22, #32cd32); color: white; border: none; border-radius: 25px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
+                <button id="victoryRestartButton" style="font-size: 24px; padding: 15px 30px; background: linear-gradient(45deg, #228b22, #32cd32); color: white; border: none; border-radius: 25px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold;">
                     🚗 ¡JUGAR DE NUEVO! 🚗
                 </button>
             `;
             
             document.body.appendChild(victoryDiv);
+            
+            // Agregar event listener al botón de restart
+            setTimeout(() => {
+                document.getElementById('victoryRestartButton').addEventListener('click', restartGame);
+            }, 100);
         }
         
         function restartGame() {
